@@ -1,14 +1,14 @@
 require_relative '../runner'
 
-describe "some examples" do
+describe "expectations" do
   it "can pass" do
-    (1 + 1).should == 2
+    # expect(1 + 1).to(eq(2))
+    expect(1 + 1).to eq 2
   end
 
-  it "can fail" do
-    (1 + 1).should == 3
-  end
-
-  it "can keep running after failing" do
+  it "can take a block" do
+    expect do
+      raise ArgumentError.new
+    end.to raise_error(ArgumentError)
   end
 end
