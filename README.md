@@ -1,6 +1,14 @@
-### Rspec Lite
+## Rspec Lite
 
 This is a learning project to help learn the internals of Rspec.
+
+### How to use
+
+Just run a spec file
+
+```
+ruby spec/example_spec.rb
+```
 
 ### New techniques learned
 
