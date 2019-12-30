@@ -209,4 +209,33 @@ The first signal is the test code has less lines of code than the production cod
 * lets + (describe + describe)
 * let + before 
 
+8. Global scope operator
 
+https://stackoverflow.com/questions/5032844/ruby-what-does-prefix-do
+
+```
+# at spec/factories.rb
+module Factories
+  module Stripe
+    module Customer
+      def self.with_valid_card
+        stripe_customer = ::Stripe::Customer.create
+        stripe_customer.soruce = "tok_visa"
+        stripe_customer.save
+      end
+    end
+  end
+end
+
+# at spec/subscription_spec.rb
+describe Subscrption do
+  let(:subscription) do
+    stripe_customer = Factories::Stripe::Customer.with_valid_card
+    Subscrption.new(stripe_customer)
+  end
+end
+```
+
+9. On factories
+
+Whenever you're describing something, you want to create that something within the block but for every other object within that block, you want to delegate it to a factory.

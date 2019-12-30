@@ -84,6 +84,14 @@ describe "before" do
   it "references other befores" do
     expect(@six).to eq 6
   end
+
+  describe "can't see other befores" do
+    it "can't see @six" do
+      expect do
+        @six
+      end.to raise_error(NameError)
+    end
+  end
 end
 
 describe "let and before interacting" do
