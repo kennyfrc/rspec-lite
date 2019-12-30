@@ -111,3 +111,65 @@ describe User do
 end
 
 ```
+
+
+5. `instance-eval` X on a Y object. 
+
+Use case: when you have a lot of global methods and you need to move them into an object, like in the case of:
+```
+describe "expectations" do
+  it "can pass" do
+    # expect(1 + 1).to(eq(2))
+    expect(1 + 1).to eq 2
+  end
+
+  it "can take a block" do
+    expect do
+      raise ArgumentError.new
+    end.to raise_error(ArgumentError)
+  end
+end
+```
+
+The need for this normally arises when you need to move a block of code...
+```
+# from
+block.call
+# to
+instance_eval(&@block)
+```
+
+
+What `instance_eval(&@block)` does is that it runs the block of code as if it's a instance method of the object. 
+
+In order to set the context, the variable self is set to obj while the code is executing, giving the code access to obj’s instance variables and private methods.
+
+```
+class KlassWithSecret
+  def initialize
+    @secret = 99
+  end
+  private
+  def the_secret
+    "Ssssh! The secret is #{@secret}."
+  end
+end
+k = KlassWithSecret.new
+k.instance_eval { @secret }          #=> 99
+k.instance_eval { the_secret }       #=> "Ssssh! The secret is 99."
+k.instance_eval {|obj| obj == self } #=> true
+```
+
+6. `method_missing`
+
+Use cases
+* Dealing with repetitive methods
+* Delegating method calls to another object
+
+It's sort of like a Begin/Rescue, but for method calls. It gives you one last chance to deal with that method call before an exception is raised.
+
+It's a method in ruby that allows you handle situations where a method in the calling object doesn't exist.
+
+* The first is the name of the method you were trying to call.
+* The second is the args (args) that were passed to the method.
+* The third is a block (&block) that was passed to the method.

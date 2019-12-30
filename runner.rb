@@ -3,38 +3,95 @@ GREEN = "\e[32m"
 RED = "\e[31m"
 RESET = "\e[0m"
 
-
 def describe(description, &block)
-  puts "#{description}"
-  block.call
+  Describe.new(description, block).run
 end
 
-def it(description, &block)
-  begin
-    # this just does not create a new line at the end of it
-    $stdout.write "#{description}"
-    block.call
-    puts " #{GREEN}(ok)#{RESET}"
-  rescue Exception => e
-    puts " #{RED}(fail)#{RESET}"
-    puts "\t#{RED}* Backtrace: #{RESET}"
-    puts [
-      e.backtrace.reverse,
-      "#{RED}#{e}#{RESET}"
-    ].flatten.map {|line| "\t#{RED}| #{RESET}#{line}"}.join("\n")
+class Describe
+  def initialize(description, block)
+    @description = description
+    @block = block
+    @lets = {}
+    @befores = []
+  end
+
+  def run
+    puts "#{@description}"
+    # this runs the block as if it's
+    # a method on the calling object
+    instance_eval(&@block)
+  end
+
+  def it(description, &block)
+    It.new(description, @lets, @befores, block).run
+  end
+
+  def let(name, &block)
+    @lets[name] = block
+  end
+
+  def before(&block)
+    @befores << block
   end
 end
 
-def expect(actual = nil, &block)
-  Actual.new(actual || block)
-end
+class It
+  def initialize(description, lets, befores, block)
+    @description = description
+    @block = block
+    @lets = lets
+    # lets_cache ensures that you 
+    # always return the same object
+    @lets_cache = {}
+    @befores = befores
+  end
 
-def raise_error(error_name)
-  Error.new(error_name)
-end
+  def run
+    begin
+      # this just does not create a new line at the end of it
+      $stdout.write "#{@description}"
+      # used to be block.call
+      @befores.each { |block| instance_eval(&block)}
+      instance_eval(&@block)
+      puts " #{GREEN}(ok)#{RESET}"
+    rescue Exception => e
+      puts " #{RED}(fail)#{RESET}"
+      puts "\t#{RED}* Backtrace: #{RESET}"
+      puts [
+        e.backtrace.reverse,
+        "#{RED}#{e}#{RESET}"
+      ].flatten.map {|line| "\t#{RED}| #{RESET}#{line}"}.join("\n")
+    end
+  end
 
-def eq(expected)
-  Expectation.new(expected)
+  def expect(actual = nil, &block)
+    Actual.new(actual || block)
+  end
+
+  def raise_error(error_name)
+    Error.new(error_name)
+  end
+
+  def eq(expected)
+    Expectation.new(expected)
+  end
+
+  def method_missing(name)
+    # fetch the block assigned to the method name
+    # call the block as if it's a method of It
+
+    # if it exists in the cache, just return it
+    if @lets_cache.key?(name)
+      @lets_cache[name]
+    else
+      # for methods that don't exist,
+      # call super which allows you to 
+      # raise an exception
+      value = instance_eval(&@lets.fetch(name) { super })
+      @lets_cache[name] = value
+      value
+    end
+  end
 end
 
 class Actual
