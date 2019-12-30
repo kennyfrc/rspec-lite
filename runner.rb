@@ -8,10 +8,10 @@ def describe(description, &block)
 end
 
 class Describe
-  def initialize(description, block)
+  def initialize(description, block,lets={})
     @description = description
     @block = block
-    @lets = {}
+    @lets = lets
     @befores = []
   end
 
@@ -20,6 +20,10 @@ class Describe
     # this runs the block as if it's
     # a method on the calling object
     instance_eval(&@block)
+  end
+
+  def describe(description, &block)
+    Describe.new(description, block, @lets.dup).run
   end
 
   def it(description, &block)
@@ -76,7 +80,7 @@ class It
     Expectation.new(expected)
   end
 
-  def method_missing(name)
+  def method_missing(name, *args)
     # fetch the block assigned to the method name
     # call the block as if it's a method of It
 

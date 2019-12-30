@@ -173,3 +173,40 @@ It's a method in ruby that allows you handle situations where a method in the ca
 * The first is the name of the method you were trying to call.
 * The second is the args (args) that were passed to the method.
 * The third is a block (&block) that was passed to the method.
+
+
+7. Growing your Test Suite
+
+Purpose:
+* Figure out what's the right process to grow a test suite.
+* The most important tests are those that involve features working together.
+
+7.1. Suspecting if the test code is insufficient
+
+The first signal is the test code has less lines of code than the production code.
+
+7.2. List all the system does
+
+* assertions / expectations
+* describe blocks
+* it blocks
+* lets (variabes)
+* before blocks
+
+7.3. Analyze the interactions between each other
+
+7.3.1 Parent > Child Relationships
+
+* describe + describe (you can do nested)
+* it + it  (it breaks when nested)
+* lets + lets (it can reference)
+* before + before (it can also reference)
+* describe + it (OK)
+* describe + lets (OK for lets + describe)
+
+7.3.2. Sibling Relationships
+
+* lets + (describe + describe)
+* let + before 
+
+
