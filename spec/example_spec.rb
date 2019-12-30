@@ -85,11 +85,10 @@ describe "before" do
     expect(@six).to eq 6
   end
 
-  describe "can't see other befores" do
-    it "can't see @six" do
-      expect do
-        @six
-      end.to raise_error(NameError)
+  describe "nested describes" do
+    before {@seven = @six + 1}
+    it "can see before from the parent describe" do
+      expect(@seven).to eq 7
     end
   end
 end

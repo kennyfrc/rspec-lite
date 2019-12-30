@@ -8,11 +8,11 @@ def describe(description, &block)
 end
 
 class Describe
-  def initialize(description, block,lets={})
+  def initialize(description, block,lets={}, befores=[])
     @description = description
     @block = block
     @lets = lets
-    @befores = []
+    @befores = befores
   end
 
   def run
@@ -23,11 +23,11 @@ class Describe
   end
 
   def describe(description, &block)
-    Describe.new(description, block, @lets.dup).run
+    Describe.new(description, block, @lets.dup, @befores.dup).run
   end
 
   def it(description, &block)
-    It.new(description, @lets, @befores, block).run
+    It.new(description, @lets, block, @befores).run
   end
 
   def let(name, &block)
@@ -40,7 +40,7 @@ class Describe
 end
 
 class It
-  def initialize(description, lets, befores, block)
+  def initialize(description, lets,block,befores)
     @description = description
     @block = block
     @lets = lets
